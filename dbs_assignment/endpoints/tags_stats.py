@@ -33,12 +33,14 @@ def get_post_users(tagname):
 async def postusers(tagname: str):
     tags_stats = get_post_users(tagname)
     return {
-        'monday': tags_stats[0],
-        'tuesday': tags_stats[1],
-        'wednesday': tags_stats[2],
-        'thursday': tags_stats[3],
-        'friday': tags_stats[4],
-        'saturday': tags_stats[5],
-        'sunday': tags_stats[6]
+        'result': {
+            'monday': tags_stats[0],
+            'tuesday': tags_stats[1],
+            'wednesday': tags_stats[2],
+            'thursday': tags_stats[3],
+            'friday': tags_stats[4],
+            'saturday': tags_stats[5],
+            'sunday': tags_stats[6]
+        }
     }
 

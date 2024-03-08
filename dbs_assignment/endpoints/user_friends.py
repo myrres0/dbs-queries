@@ -31,4 +31,6 @@ def get_user_friends(user_id):
 @router.get("/v2/users/{user_id}/friends")
 async def userfriends(user_id: int):
     user_friends = get_user_friends(user_id)
-    return user_friends
+    return {
+        "items": user_friends
+    }
