@@ -1,6 +1,6 @@
 import psycopg2
 from fastapi import APIRouter
-
+from datetime import datetime
 from dbs_assignment.config import settings
 
 router = APIRouter()
@@ -12,7 +12,9 @@ def get_user_friends(user_id):
 
     cursor = connection.cursor()
     cursor.execute("""
-    SELECT DISTINCT users.* FROM users
+    SELECT users.id, reputation, TO_CHAR(users.creationdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS creationdate,
+       displayname, TO_CHAR(users.lastaccessdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS lastaccessdate,
+       websiteurl, location, aboutme, views, upvotes, downvotes, profileimageurl, age, accountid FROM users
     LEFT JOIN comments ON comments.userid = users.id
     WHERE comments.postid IN
     (SELECT id FROM posts WHERE owneruserid = %s )
@@ -26,6 +28,7 @@ def get_user_friends(user_id):
     cursor.close()
     connection.close()
     return user_friends
+
 
 
 @router.get("/v2/users/{user_id}/friends")

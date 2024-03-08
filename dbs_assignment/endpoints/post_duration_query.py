@@ -12,9 +12,10 @@ def get_post_query(limit, query):
 
     cursor = connection.cursor()
     cursor.execute("""
-    SELECT posts.id, posts.creationdate, posts.viewcount, posts.lasteditdate,
-       posts.lastactivitydate, posts.title, posts.body, posts.answercount,
-       posts.closeddate, array_agg(tags.tagname) AS tags FROM (
+    SELECT posts.id, TO_CHAR(posts.creationdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS creationdate, posts.viewcount,
+       TO_CHAR(posts.lasteditdate,'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS lasteditdate,
+       TO_CHAR(posts.lastactivitydate,'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS lastactivitydate, posts.title, posts.body, posts.answercount,
+       TO_CHAR(posts.closeddate,'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS closeddate, array_agg(tags.tagname) AS tags FROM (
     SELECT posts.* FROM posts
     WHERE posts.title ILIKE %s OR posts.body ILIKE %s
     ORDER BY posts.creationdate DESC
@@ -41,8 +42,10 @@ def get_post_duration(duration, limit):
 
     cursor = connection.cursor()
     cursor.execute("""
-    SELECT posts.id, posts.creationdate, posts.viewcount, posts.lasteditdate,
-       posts.lastactivitydate, posts.title, posts.closeddate,
+    SELECT posts.id, TO_CHAR(posts.creationdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS creationdate, posts.viewcount,
+       TO_CHAR(posts.lasteditdate,'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS lasteditdate,
+       TO_CHAR(posts.lastactivitydate,'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS lastactivitydate, posts.title,
+       TO_CHAR(posts.closeddate,'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS closeddate,
        ROUND(EXTRACT(EPOCH FROM closeddate - creationdate) / 60, 2) AS duration
     FROM posts
     WHERE closeddate IS NOT NULL
