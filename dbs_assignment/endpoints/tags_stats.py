@@ -6,15 +6,14 @@ from dbs_assignment.config import settings
 router = APIRouter()
 
 
-def get_post_users(tagname):
+def get_tags_stats(tagname):
     connection = psycopg2.connect(database=settings.DATABASE_NAME, user=settings.DATABASE_USER,
                                   password=settings.DATABASE_PASSWORD,
                                   host=settings.DATABASE_HOST, port=settings.DATABASE_PORT)
 
     cursor = connection.cursor()
     cursor.execute("""
-    SELECT --TO_CHAR(creationdate, 'Day') AS day,
-    ROUND((COUNT(CASE WHEN tags.tagname = 'linux' THEN 1 ELSE NULL END) * 100.0)
+    SELECT ROUND((COUNT(CASE WHEN tags.tagname = %s THEN 1 ELSE NULL END) * 100.0)
                  / COUNT(DISTINCT posts.id), 2) AS percentage
     FROM posts
     JOIN post_tags ON posts.id = post_tags.post_id
@@ -30,8 +29,8 @@ def get_post_users(tagname):
 
 
 @router.get("/v2/tags/{tagname}/stats")
-async def postusers(tagname: str):
-    tags_stats = get_post_users(tagname)
+async def tagsstats(tagname: str):
+    tags_stats = get_tags_stats(tagname)
     return {
         'result': {
             'monday': tags_stats[0],

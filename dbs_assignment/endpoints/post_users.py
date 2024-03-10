@@ -1,6 +1,5 @@
 import psycopg2
 from fastapi import APIRouter
-from datetime import datetime
 
 from dbs_assignment.config import settings
 
@@ -13,24 +12,26 @@ def get_post_users(post_id):
                                   host=settings.DATABASE_HOST, port=settings.DATABASE_PORT)
 
     cursor = connection.cursor()
+
     cursor.execute(" SET TIMEZONE='UTC'; ")
     cursor.execute("""
-    SELECT users.* FROM comments
+    SELECT users.id, reputation, TO_CHAR(users.creationdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00:00"') AS creationdate,
+       displayname, lastaccessdate,TO_CHAR(users.lastaccessdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00:00"') AS lastaccessdate,
+       location, aboutme, views, upvotes, downvotes, profileimageurl, age, accountid FROM comments
     JOIN users ON comments.userid = users.id
     WHERE comments.postid = %s
     ORDER BY comments.creationdate DESC;
     """, [post_id])
-    post_users_data = cursor.fetchall()
-    column_names = [desc[0] for desc in cursor.description]
+
+    post_users_data = cursor.fetchall() # data from the query
+    column_names = [desc[0] for desc in cursor.description] # extract column names
+    # 1. zip column names and data,
+    # 2. convert list of tuples to list of dictionaries
     post_users = [{column_name: value for column_name, value in zip(column_names, row)} for row in post_users_data]
+
     cursor.close()
     connection.close()
-    #post_users = change_datetime_format(post_users)
     return post_users
-
-
-# function to change datetime format to ”2023-12-01T00:05:24.3+00:00”,
-
 
 
 @router.get("/v2/posts/{post_id}/users")
