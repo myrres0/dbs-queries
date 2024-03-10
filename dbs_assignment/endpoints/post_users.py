@@ -17,7 +17,7 @@ def get_post_users(post_id):
     cursor.execute("""
     SELECT users.id, reputation, TO_CHAR(users.creationdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00:00"') AS creationdate,
        displayname, lastaccessdate,TO_CHAR(users.lastaccessdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00:00"') AS lastaccessdate,
-       location, aboutme, views, upvotes, downvotes, profileimageurl, age, accountid FROM comments
+       location, aboutme, views, upvotes, downvotes, profileimageurl, age, accountid, websiteurl FROM comments
     JOIN users ON comments.userid = users.id
     WHERE comments.postid = %s
     ORDER BY comments.creationdate DESC;
