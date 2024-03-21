@@ -23,7 +23,7 @@ def get_task3(tag, position, limit):
             JOIN comments ON posts.id = comments.postid
             WHERE tags.tagname = %s
             GROUP BY posts.id, posts.creationdate
-            HAVING count(comments.id) > %s
+            HAVING count(comments.id) >= %s
             ORDER BY posts.creationdate
             LIMIT %s
         ) AS posts
@@ -44,8 +44,8 @@ def get_task3(tag, position, limit):
 
 
 @router.get("/v3/tags/{tagname}/comments/{position}")
-async def postusers(tagname: str, position: int,
-                    limit: int = Query(None, description="Limit the number of items returned")):
+async def gettask3(tagname: str, position: int,
+                   limit: int = Query(None, description="Limit the number of items returned")):
     result = get_task3(tagname, position, limit)
     return {
         "items": result

@@ -14,36 +14,34 @@ def get_task1(user_id):
 
     cursor = connection.cursor()
     cursor.execute("""
-        SELECT *, row_number() over ()
+        SELECT *, ROW_NUMBER() OVER() AS position
         FROM (
-        SELECT DISTINCT ON (post_id) badge_post.*, 'badge' AS b_type, posts.title, 'post' AS p_type,
-        TO_CHAR(posts.creationdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS creationdate
-        FROM (SELECT badges.id,badges.name,TO_CHAR(badges.date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS date,
-            max(CASE WHEN posts.creationdate < badges.date THEN posts.id END) AS post_id
-            FROM badges
-            JOIN posts ON posts.owneruserid = badges.userid
-            WHERE badges.userid = %s
-            GROUP BY badges.id, badges.date
-            ORDER BY badges.date, badges.id) AS badge_post
-        JOIN posts ON badge_post.post_id = posts.id
-    ) AS badge_post;
+            SELECT DISTINCT ON (post_id) post_badge.*,'badge' AS b_type, posts.title, 'post' AS p_type, posts.creationdate
+            FROM (SELECT badges.id,badges.name,badges.date, max(CASE WHEN posts.creationdate < badges.date THEN posts.id END) AS post_id
+                FROM badges
+                JOIN posts ON posts.owneruserid = badges.userid
+                WHERE badges.userid = %s
+                GROUP BY badges.id, badges.date
+                ORDER BY badges.date, badges.id) AS post_badge
+            JOIN posts ON post_badge.post_id = posts.id
+        ) AS post_badge;
     """, [user_id])
 
     data = cursor.fetchall() # data from the query
     column_names = [desc[0] for desc in cursor.description] # extract column names
-    badges = [{column_name: value for column_name, value in zip(column_names, row)} for row in data]
+    posts_badges = [{column_name: value for column_name, value in zip(column_names, row)} for row in data]
 
     # to new dictionary
     result = []
 
-    for badge in badges:
+    for badge in posts_badges:
         result.append(
             {
                 "id": badge["post_id"],
                 "title": badge["title"],
                 "type": badge["p_type"],
                 "created_at": badge["creationdate"],
-                "position": badge["row_number"]
+                "position": badge["position"]
             }
         )
         result.append({
@@ -51,7 +49,7 @@ def get_task1(user_id):
             "title": badge["name"],
             "type": badge["b_type"],
             "created_at": badge["date"],
-            "position": badge["row_number"]
+            "position": badge["position"]
         })
 
     cursor.close()

@@ -56,8 +56,7 @@ def get_task2(tag, count):
 
 
 @router.get("/v3/tags/{tag}/comments")
-async def task2(tag: str,
-                count: int = Query(None, description="count")):
+async def task2(tag: str, count: int = Query(None, description="count")):
     result = get_task2(tag, count)
     return {
         "items": result
