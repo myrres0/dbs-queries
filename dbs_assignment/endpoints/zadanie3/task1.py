@@ -16,8 +16,8 @@ def get_task1(user_id):
     cursor.execute("""
         SELECT *, ROW_NUMBER() OVER() AS position
         FROM (
-            SELECT DISTINCT ON (post_id) post_badge.*,'badge' AS b_type, posts.title, 'post' AS p_type, posts.creationdate
-            FROM (SELECT badges.id,badges.name,badges.date, max(CASE WHEN posts.creationdate < badges.date THEN posts.id END) AS post_id
+            SELECT DISTINCT ON (post_id) post_badge.*,'badge' AS b_type, posts.title, 'post' AS p_type,TO_CHAR(posts.creationdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS creationdate
+            FROM (SELECT badges.id,badges.name,TO_CHAR(badges.date , 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') AS date, max(CASE WHEN posts.creationdate < badges.date THEN posts.id END) AS post_id
                 FROM badges
                 JOIN posts ON posts.owneruserid = badges.userid
                 WHERE badges.userid = %s

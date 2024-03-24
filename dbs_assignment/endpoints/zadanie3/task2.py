@@ -15,19 +15,19 @@ def get_task2(tag, count):
     cursor = connection.cursor()
     cursor.execute("""
         SELECT *,TO_CHAR(comments_with_time_difference.diff, 'HH24:MI:SS.MS') AS diff,  TO_CHAR(AVG(comments_with_time_difference.diff) OVER
-        (PARTITION BY post_id ORDER BY comments_with_time_difference.creationdate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-        ),'HH24:MI:SS.MS') AS avg FROM (
+        (PARTITION BY post_id ORDER BY comments_with_time_difference.created_at ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ),'HH24:MI:SS.US') AS avg FROM (
             SELECT *,
             CASE
-            WHEN LAG(comments_sorted.creationdate) OVER (PARTITION BY post_id ORDER BY comments_sorted.creationdate) IS NULL THEN
-            (comments_sorted.creationdate - post_created_at)
+            WHEN LAG(comments_sorted.created_at) OVER (PARTITION BY post_id ORDER BY comments_sorted.created_at) IS NULL THEN
+            (comments_sorted.created_at - post_created_at)
             ELSE
-            (comments_sorted.creationdate - LAG(comments_sorted.creationdate)
-            OVER (PARTITION BY post_id ORDER BY comments_sorted.creationdate))
+            (comments_sorted.created_at - LAG(comments_sorted.created_at)
+            OVER (PARTITION BY post_id ORDER BY comments_sorted.created_at))
             END AS diff
             FROM (
                 SELECT posts_sorted.id as post_id, posts_sorted.title, users.displayname,
-                comments.text, posts_sorted.creationdate AS post_created_at, comments.creationdate
+                comments.text, posts_sorted.creationdate AS post_created_at, comments.creationdate as created_at
                  FROM (
                     SELECT DISTINCT posts.id,posts.title,posts.creationdate, COUNT(comments.id) as comments_count
                      FROM(
@@ -42,8 +42,8 @@ def get_task2(tag, count):
                 JOIN comments ON posts_sorted.id = comments.postid
                 JOIN public.users on users.id = comments.userid
                 ORDER BY comments.creationdate) AS comments_sorted
-            ORDER BY comments_sorted.post_id, comments_sorted.creationdate) AS comments_with_time_difference
-        ORDER BY post_id, comments_with_time_difference.creationdate;
+            ORDER BY comments_sorted.post_id, comments_sorted.created_at) AS comments_with_time_difference
+        ORDER BY post_id, comments_with_time_difference.created_at;
     """, [tag, count])
 
     data = cursor.fetchall() # data from the query
