@@ -40,7 +40,7 @@ def get_task2(tag, count):
                         GROUP BY posts.id, posts.title, posts.creationdate
                         HAVING COUNT(comments.id) > %s) AS posts_sorted
                 JOIN comments ON posts_sorted.id = comments.postid
-                JOIN public.users on users.id = comments.userid
+                LEFT OUTER JOIN public.users on users.id = comments.userid
                 ORDER BY comments.creationdate) AS comments_sorted
             ORDER BY comments_sorted.post_id, comments_sorted.created_at) AS comments_with_time_difference
         ORDER BY post_id, comments_with_time_difference.created_at;
