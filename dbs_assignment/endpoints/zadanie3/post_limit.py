@@ -39,6 +39,7 @@ def get_post_limit(post_id, limit):
 async def postusers(post_id: int,
                     limit: int = Query(None, description="Limit the number of items returned")):
     result = get_post_limit(post_id, limit)
+
     return {
         "items": result
     }
