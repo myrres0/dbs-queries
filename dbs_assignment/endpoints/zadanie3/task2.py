@@ -14,7 +14,13 @@ def get_task2(tag, count):
 
     cursor = connection.cursor()
     cursor.execute("""
-        SELECT *,TO_CHAR(comments_with_time_difference.diff, 'HH24:MI:SS.MS') AS diff,  TO_CHAR(AVG(comments_with_time_difference.diff) OVER
+        SELECT *,CASE
+        WHEN EXTRACT(DAY FROM comments_with_time_difference.diff) > 0 THEN
+            EXTRACT(DAY FROM comments_with_time_difference.diff) || ' days ' ||
+            TO_CHAR(comments_with_time_difference.diff, 'HH24:MI:SS.MS')
+        ELSE
+            TO_CHAR(comments_with_time_difference.diff, 'HH24:MI:SS.MS')
+        END AS diff,  TO_CHAR(AVG(comments_with_time_difference.diff) OVER
         (PARTITION BY post_id ORDER BY comments_with_time_difference.created_at ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
         ),'HH24:MI:SS.US') AS avg FROM (
             SELECT *,
