@@ -14,7 +14,7 @@ def get_post_limit(post_id, limit):
 
     cursor = connection.cursor()
     cursor.execute("""
-       --SET TIMEZONE = 'UTC';
+        --SET TIMEZONE = 'UTC';
         SELECT users.displayname, posts.body, TO_CHAR(posts.creationdate, 'YYYY-MM-DD"T"HH24:MI:SS.MS"+00"') as created_at FROM posts
         JOIN users ON posts.owneruserid = users.id
         WHERE posts.id = %s

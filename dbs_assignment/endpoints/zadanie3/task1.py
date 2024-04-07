@@ -37,8 +37,7 @@ def get_task1(user_id):
     result = []
 
     for badge in posts_badges:
-        result.append(
-            {
+        result.append({
                 "id": badge["post_id"],
                 "title": badge["title"],
                 "type": badge["p_type"],
